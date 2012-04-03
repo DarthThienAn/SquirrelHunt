@@ -1,5 +1,7 @@
 package com.squirrel;
 
+import java.io.IOException;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -57,18 +59,18 @@ public class SquirrelMain extends Activity implements OnGestureListener {
 
 	@Override
 	public boolean onSingleTapUp(MotionEvent e) {
-		if (!started)
-		{
-			setContentView(R.layout.squirrelgame);
-			text = (TextView) findViewById(R.id.gametext);
-			
-			mySquirrelView = (SquirrelView) findViewById(R.id.game);
-//			mySquirrelView.updateNew();
-			score = 0;
-			counter = 0;
-			
-			started = true;
-		}
+//		if (!started)
+//		{
+//			setContentView(R.layout.squirrelgame);
+//			text = (TextView) findViewById(R.id.gametext);
+//			
+//			mySquirrelView = (SquirrelView) findViewById(R.id.game);
+////			mySquirrelView.updateNew();
+//			score = 0;
+//			counter = 0;
+//			
+//			started = true;
+//		}
 		if (mySquirrelView != null)
 		{
 			mySquirrelView.update();
@@ -88,17 +90,16 @@ public class SquirrelMain extends Activity implements OnGestureListener {
 					text.setText("Score: " + score + " - " + counter + "in a row!");
 				}
 				
-					
 				mySquirrelView.updateNew();
 			}
 			else
 			{
-				text.setText("Miss!");
+				text.setText("Score: " + score + " - Miss!");
 				counter = 0;
 			}
 		}		
-		if (!started)
-			text2.setText("" + e.getRawX() + " AND " + e.getRawY());
+//		if (!started)
+//			text2.setText("" + e.getRawX() + " AND " + e.getRawY());
 
 		return true;
 	}
@@ -112,10 +113,21 @@ public class SquirrelMain extends Activity implements OnGestureListener {
 		// remove title bar
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		setContentView(R.layout.main);
-		text = (TextView) findViewById(R.id.squirrel_text);
-		text2 = (TextView) findViewById(R.id.squirrel_text2);
+//		setContentView(R.layout.main);
+//		text = (TextView) findViewById(R.id.squirrel_text);
+//		text2 = (TextView) findViewById(R.id.squirrel_text2);
+		setContentView(R.layout.squirrelgame);
+		text = (TextView) findViewById(R.id.gametext);
 		
+		mySquirrelView = (SquirrelView) findViewById(R.id.game);
+//		mySquirrelView.updateNew();
+		score = 0;
+		counter = 0;
+		
+		started = true;
+		
+		mySquirrelView.update();
+		text.setText("Score: " + score);
 	}
 	
 	class RefreshHandler extends Handler {
@@ -132,4 +144,13 @@ public class SquirrelMain extends Activity implements OnGestureListener {
 		}
 	};
 
+	@Override
+	protected void onStop() {
+		System.exit(0);
+	}
+
+//	@Override
+//	protected void onPause() {
+//		System.exit(0);
+//	}
 }	

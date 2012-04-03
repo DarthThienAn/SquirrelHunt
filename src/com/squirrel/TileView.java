@@ -24,7 +24,7 @@ public class TileView extends View {
 
 	protected static int mTileSize = 0;
 
-	// want it to be 15x15, add 2 to each dimension for walls.
+	// want it to be 20x20, add 2 to each dimension for walls.
 	protected final static int xTileNum = 12;
 	protected final static int yTileNum = 12;
 	protected static int xDimensions;

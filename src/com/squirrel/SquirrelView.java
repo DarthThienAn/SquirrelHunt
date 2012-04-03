@@ -21,8 +21,9 @@ public class SquirrelView extends TileView {
 	private static final int GREEN = 1;
 	private static final int WALL = 2;
 
-	private static int currX;
-	private static int currY;
+	private static double  currX;
+	private static double currY;
+	private static int range;
 	
 	/**
 	 * mStatusText: text shows to the user in some run states
@@ -30,13 +31,18 @@ public class SquirrelView extends TileView {
 	private TextView mStatusText;
 	
 	/**
-	 * mLastMove: tracks the absolute time when the Tetris last moved, and is
-	 * used to determine if a move should be made based on mMoveDelay.
+	 * mLastMove: tracks the absolute time when the last Squirrel
+	 * spawned, and tells whether or not a new one should spawn.
 	 */
 	private long mLastMove;
 
-	private int mDelay = 2000;
-	
+	/** Maximum delay between each Squirrel **/
+	private int mDelay = 1000;
+	/** Keeps track of when the game starts **/
+	private long mFirst;
+	/** Game length: 30 seconds **/
+	private int mTotalTime = 30000;
+
 	/**
 	 * Create a simple handler that we can use to cause animation to happen. We
 	 * set ourselves as a target and we can use the sleep() function to cause an
@@ -58,7 +64,7 @@ public class SquirrelView extends TileView {
 		}
 	};	
 	/**
-	 * Constructs a TetrisView based on inflation from XML
+	 * Constructs a SquirrelView based on inflation from XML
 	 * 
 	 * @param context
 	 * @param attrs
@@ -87,6 +93,9 @@ public class SquirrelView extends TileView {
 		
 		updateWalls();
 		drawNew();
+		
+		mFirst = System.currentTimeMillis();
+		range = mTileSize;
 //		mLastMove = System.currentTimeMillis();
 	}
 
@@ -102,34 +111,40 @@ public class SquirrelView extends TileView {
 
 	public boolean checkTouched(double x, double y)
 	{
-		double xSum = x - xOffset; 
-		double ySum = y - yOffset - barOffset; 
+//		double xSum = x - xOffset; 
+//		double ySum = y - yOffset - barOffset; 
 		Log.d("checkX+Y", "x: " + x + " + y: " + y);
 		Log.d("checkOffset", "x: " + xOffset + " + y: " + yOffset);
-		Log.d("checkTile", "" + mTileSize + " + " + barOffset);
+		Log.d("checkTile", "" + mTileSize + " + " + barOffset + " + " + range);
 		
-		int xCounter = -1;
-		int yCounter = -1;
+//		int xCounter = -1;
+//		int yCounter = -1;
+//		
+//		while (xSum > 0)
+//		{
+//			xCounter++;
+//			xSum -= mTileSize;
+//		}
+//		
+//		while (ySum > 0)
+//		{
+//			yCounter++;
+//			ySum -= mTileSize;
+//		}
 		
-		while (xSum > 0)
-		{
-			xCounter++;
-			xSum -= mTileSize;
-		}
-		
-		while (ySum > 0)
-		{
-			yCounter++;
-			ySum -= mTileSize;
-		}
-		
-		Log.d("checkTouchedX", "" + currX + " + " + xCounter);
-		Log.d("checkTouchedY", "" + currY + " + " + yCounter);
-		
-		if ((Math.abs(currX - xCounter) < 2) && (Math.abs(currY - yCounter) < 2))
+		Log.d("checkTouchedX", "" + currX + " + " + x);
+		Log.d("checkTouchedY", "" + currY + " + " + y);
+
+		//if the point touched is within (2 * range), return true and create a new point
+		if ((Math.abs(x - currX) < (range * 2.0)) && (Math.abs(y - currY) < (range * 2.0)))
 		{
 			return true;
 		}
+		
+//		if ((Math.abs(currX - xCounter) < 2) && (Math.abs(currY - yCounter) < 2))
+//		{
+//			return true;
+//		}
 		
 		return false;
 	}
@@ -145,9 +160,14 @@ public class SquirrelView extends TileView {
 		if (now - mLastMove > mDelay) {
 			clearTiles();
 			updateWalls();
-			drawBlock();
+			drawNew();
 			mLastMove = now;
 		}
+		
+		//end game
+//		if (now > mFirst + mTotalTime)
+//			System.exit(0);
+		
 		mRedrawHandler.sleep(0);
 	}
 
@@ -160,7 +180,6 @@ public class SquirrelView extends TileView {
 	
 	/**
 	 * Draws some walls.
-	 * 
 	 */
 	private void updateWalls() {
 		for (int x = 0; x < xTileNum; x++) {
@@ -173,49 +192,32 @@ public class SquirrelView extends TileView {
 		}
 	}
 
+	/**
+	 * Create and draw the next block.
+	 */
 	public void drawNew() {
 		
 		Random randomGen = new Random();
 		
+		double oldX = currX;
+		double oldY = currY;
+
 		int xRandom = randomGen.nextInt(xTileNum - 2) + 1;
 		int yRandom = randomGen.nextInt(yTileNum - 2) + 1;
 		
-		currX = xRandom;
-		currY = yRandom;
-		
-		Log.d("TAGnew", xRandom + " " + yRandom);
+		currX = xOffset + (xRandom * range) + (0.5 * range);
+		currY = barOffset + yOffset + (yRandom * range) + (0.5 * range);
+
+		while ((oldX == currX) && (oldY == currY))
+		{
+			xRandom = randomGen.nextInt(xTileNum - 2) + 1;
+			yRandom = randomGen.nextInt(yTileNum - 2) + 1;
+			currX = xOffset + (xRandom * range) + (0.5 * range);			
+			currY = barOffset + yOffset + (yRandom * range) + (0.5 * range);
+		}
+				
+		Log.d("xyRandom", xRandom + " " + yRandom);
 		
 		setTile(GREEN, xRandom, yRandom);
-	}
-	
-	/**
-	 * Figure out which way the Tetris is going, see if he's run into anything
-	 * (the walls, himself). If he's not going to die, we then add to the front
-	 * and subtract from the rear in order to simulate motion. If we want to
-	 * grow him, we don't subtract from the rear.
-	 * 
-	 */
-
-	private void drawBlock() {
-		
-		Random randomGen = new Random();
-		
-		int xRandom = randomGen.nextInt(xTileNum - 2) + 1;
-		int yRandom = randomGen.nextInt(yTileNum - 2) + 1;
-		
-		currX = xRandom;
-		currY = yRandom;
-		
-		Log.d("TAG", xRandom + " " + yRandom);
-		
-		setTile(GREEN, xRandom, yRandom);
-
-//		for (int x = 0; x < xDimensions; x++) {
-//			for (int y = 0; y < yDimensions; y++) {
-//				if (mTetrisGame.getBlocks(x, y)) {
-//					setTile(mTetrisGame.getColors(x, y), x, y);
-//				}
-//			}
-//		}
 	}
 }
