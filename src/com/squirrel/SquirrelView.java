@@ -18,11 +18,10 @@ public class SquirrelView extends TileView {
 	/**
 	 * Labels for the drawables that will be loaded into the TileView class
 	 */
-	private static final int BROWNSQ = 1;
-	private static final int REDSQ = 2;
-	private static final int SKUNK = 3;
-	private static final int TREE = 4;
-//	private static final int WALL = 2;
+	public static final int BROWNSQ = 1;
+	public static final int REDSQ = 2;
+	public static final int SKUNK = 3;
+	public static final int TREE = 4;
 
 	private static double currX;
 	private static double currY;
@@ -42,7 +41,7 @@ public class SquirrelView extends TileView {
 	private long mLastMove;
 
 	/** Maximum delay between each Squirrel **/
-	private int mDelay = 1000;
+	private int mDelay = 500;
 	/** Keeps track of when the game starts **/
 	private long mFirst;
 	/** Game length: 30 seconds **/
@@ -116,42 +115,15 @@ public class SquirrelView extends TileView {
 		mStatusText = newView;
 	}
 
+    public void setText(String text) {
+        mStatusText.setText(text);
+    }	
+	
 	public boolean checkTouched(double x, double y)
 	{
-//		double xSum = x - xOffset; 
-//		double ySum = y - yOffset - barOffset; 
-		Log.d("checkX+Y", "x: " + x + " + y: " + y);
-		Log.d("checkOffset", "x: " + xOffset + " + y: " + yOffset);
-		Log.d("checkTile", "" + mTileSize + " + " + barOffset + " + " + range);
-		
-//		int xCounter = -1;
-//		int yCounter = -1;
-//		
-//		while (xSum > 0)
-//		{
-//			xCounter++;
-//			xSum -= mTileSize;
-//		}
-//		
-//		while (ySum > 0)
-//		{
-//			yCounter++;
-//			ySum -= mTileSize;
-//		}
-		
-		Log.d("checkTouchedX", "" + currX + " + " + x);
-		Log.d("checkTouchedY", "" + currY + " + " + y);
-
 		//if the point touched is within (2 * range), return true and create a new point
 		if ((Math.abs(x - currX) < (range * 2.0)) && (Math.abs(y - currY) < (range * 2.0)))
-		{
 			return true;
-		}
-		
-//		if ((Math.abs(currX - xCounter) < 2) && (Math.abs(currY - yCounter) < 2))
-//		{
-//			return true;
-//		}
 		
 		return false;
 	}
@@ -175,7 +147,9 @@ public class SquirrelView extends TileView {
 			
 			//end game
 			if (now > mFirst + mTotalTime)
-				gameover = true;
+			{
+//				gameover = true;
+			}
 			
 			mRedrawHandler.sleep(0);
 		}
@@ -226,9 +200,9 @@ public class SquirrelView extends TileView {
 		
 		double rand = Math.random();
 		
-		if (rand < 0.25)
+		if (rand < 0.15)
 			type = SKUNK;
-		else if (rand < 0.5)
+		else if (rand < 0.3)
 			type = REDSQ;
 		else //if (Math.random() < 0.75)
 			type = BROWNSQ;

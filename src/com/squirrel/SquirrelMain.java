@@ -1,12 +1,7 @@
 package com.squirrel;
 
-import java.io.IOException;
-
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
@@ -16,20 +11,10 @@ import android.widget.TextView;
 public class SquirrelMain extends Activity implements OnGestureListener {
 
 	private GestureDetector gestureScanner;
-	private TextView text;
-	private TextView text2;
 	private SquirrelView mySquirrelView;
-	private boolean started = false;
 	private int score;
 	private int counter;
 	private int type;
-	
-	private static final int BROWNSQ = 1;
-	private static final int REDSQ = 2;
-	private static final int SKUNK = 3;
-	private static final int TREE = 4;
-	
-	private RefreshHandler mRefreshHandler = new RefreshHandler();
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
@@ -65,65 +50,50 @@ public class SquirrelMain extends Activity implements OnGestureListener {
 
 	@Override
 	public boolean onSingleTapUp(MotionEvent e) {
-//		if (!started)
-//		{
-//			setContentView(R.layout.squirrelgame);
-//			text = (TextView) findViewById(R.id.gametext);
-//			
-//			mySquirrelView = (SquirrelView) findViewById(R.id.game);
-////			mySquirrelView.updateNew();
-//			score = 0;
-//			counter = 0;
-//			
-//			started = true;
-//		}
 		if (mySquirrelView != null)
 		{
 			if (mySquirrelView.getGameOver())
-				text.setText("Game Over! Score: " + score);
+				mySquirrelView.setText("Game Over! Score: " + score);
 			else
 			{				
 				mySquirrelView.update();
-				mRefreshHandler.sleep(50);
-	
-		//		text.setText("" + e.getX() + " AND " + e.getY());
 				
 				if (mySquirrelView.checkTouched(e.getX(), e.getY()))
 				{
 					type = mySquirrelView.getType();
 					
-					if (type == BROWNSQ)
+					if (type == SquirrelView.BROWNSQ)
 					{
 						score += 10;
 						counter++;
-						text.setText("Score: " + score);
+						mySquirrelView.setText("Score: " + score);
 					
 						if (counter > 5)
 						{
 							score += 10 * (counter - 5);
-							text.setText("Score: " + score + " - " + counter + "in a row!");
+							mySquirrelView.setText("Score: " + score + " - " + counter + "in a row!");
 						}
 					}
-					else if (type == REDSQ)
+					else if (type == SquirrelView.REDSQ)
 					{
 						score += 100;
 						counter++;
-						text.setText("Score: " + score);
+						mySquirrelView.setText("Score: " + score);
 						
 						if (counter > 5)
 						{
 //							score += 10 * (counter - 5);
-							text.setText("Score: " + score + " - " + counter + "in a row!");
+							mySquirrelView.setText("Score: " + score + " - " + counter + "in a row!");
 						}
 					}
-					else if (type == SKUNK)
+					else if (type == SquirrelView.SKUNK)
 					{
 						score -= 100;
 						
 						if (score < 0)
 							score = 0;
 						counter = 0;
-						text.setText("Score: " + score + " - Oops!");
+						mySquirrelView.setText("Score: " + score + " - Oops!");
 					}
 					
 					
@@ -131,13 +101,11 @@ public class SquirrelMain extends Activity implements OnGestureListener {
 				}
 				else //if (type != SKUNK)
 				{
-					text.setText("Score: " + score + " - Miss!");
+					mySquirrelView.setText("Score: " + score + " - Miss!");
 					counter = 0;
 				}
 			}
-		}		
-//		if (!started)
-//			text2.setText("" + e.getRawX() + " AND " + e.getRawY());
+		}
 
 		return true;
 	}
@@ -151,38 +119,17 @@ public class SquirrelMain extends Activity implements OnGestureListener {
 		// remove title bar
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-//		setContentView(R.layout.main);
-//		text = (TextView) findViewById(R.id.squirrel_text);
-//		text2 = (TextView) findViewById(R.id.squirrel_text2);
 		setContentView(R.layout.squirrelgame);
-		text = (TextView) findViewById(R.id.gametext);
-		
+		mySquirrelView.setTextView((TextView) findViewById(R.id.gametext));
 		mySquirrelView = (SquirrelView) findViewById(R.id.game);
-//		mySquirrelView.updateNew();
+
 		score = 0;
 		counter = 0;
 		
-		started = true;
-		
 		mySquirrelView.update();
-		mySquirrelView.setTextView(text);
-		text.setText("Score: " + score);
+		mySquirrelView.setText("Score: " + score);
 	}
 	
-	class RefreshHandler extends Handler {
-
-		@Override
-		public void handleMessage(Message msg) {
-			if (mySquirrelView != null)
-				mySquirrelView.update();
-		}
-
-		public void sleep(long delayMillis) {
-			this.removeMessages(0);
-			sendMessageDelayed(obtainMessage(0), delayMillis);
-		}
-	};
-
 	@Override
 	protected void onStop() {
 		System.exit(0);
