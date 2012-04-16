@@ -12,9 +12,6 @@ public class SquirrelMain extends Activity implements OnGestureListener {
 
 	private GestureDetector gestureScanner;
 	private SquirrelView mySquirrelView;
-	private int score;
-	private int counter;
-	private int type;
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
@@ -53,57 +50,11 @@ public class SquirrelMain extends Activity implements OnGestureListener {
 		if (mySquirrelView != null)
 		{
 			if (mySquirrelView.getGameOver())
-				mySquirrelView.setText("Game Over! Score: " + score);
+				mySquirrelView.setText("Game Over! Score: " + mySquirrelView.getScore());
 			else
 			{				
 				mySquirrelView.update();
-				
-				if (mySquirrelView.checkTouched(e.getX(), e.getY()))
-				{
-					type = mySquirrelView.getType();
-					
-					if (type == SquirrelView.BROWNSQ)
-					{
-						score += 10;
-						counter++;
-						mySquirrelView.setText("Score: " + score);
-					
-						if (counter > 5)
-						{
-							score += 10 * (counter - 5);
-							mySquirrelView.setText("Score: " + score + " - " + counter + "in a row!");
-						}
-					}
-					else if (type == SquirrelView.REDSQ)
-					{
-						score += 100;
-						counter++;
-						mySquirrelView.setText("Score: " + score);
-						
-						if (counter > 5)
-						{
-//							score += 10 * (counter - 5);
-							mySquirrelView.setText("Score: " + score + " - " + counter + "in a row!");
-						}
-					}
-					else if (type == SquirrelView.SKUNK)
-					{
-						score -= 100;
-						
-						if (score < 0)
-							score = 0;
-						counter = 0;
-						mySquirrelView.setText("Score: " + score + " - Oops!");
-					}
-					
-					
-					mySquirrelView.updateNew();
-				}
-				else //if (type != SKUNK)
-				{
-					mySquirrelView.setText("Score: " + score + " - Miss!");
-					counter = 0;
-				}
+				mySquirrelView.touch(e.getX(), e.getY());
 			}
 		}
 
@@ -120,14 +71,11 @@ public class SquirrelMain extends Activity implements OnGestureListener {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		setContentView(R.layout.squirrelgame);
-		mySquirrelView.setTextView((TextView) findViewById(R.id.gametext));
 		mySquirrelView = (SquirrelView) findViewById(R.id.game);
-
-		score = 0;
-		counter = 0;
+		mySquirrelView.setTextView((TextView) findViewById(R.id.gametext));
 		
 		mySquirrelView.update();
-		mySquirrelView.setText("Score: " + score);
+		mySquirrelView.setText("Score: " + mySquirrelView.getScore());
 	}
 	
 	@Override

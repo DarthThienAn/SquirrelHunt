@@ -28,6 +28,9 @@ public class SquirrelView extends TileView {
 	private static int currType = 0;
 	private static int range;
 	private static boolean gameover = false;
+	private static int score = 0;
+	private static int counter = 0;
+	
 	
 	/**
 	 * mStatusText: text shows to the user in some run states
@@ -99,7 +102,9 @@ public class SquirrelView extends TileView {
 		
 		updateWalls();
 		drawNew();
-		
+
+		score = 0;
+		counter = 0;
 		mFirst = System.currentTimeMillis();
 		range = mTileSize;
 //		mLastMove = System.currentTimeMillis();
@@ -115,17 +120,59 @@ public class SquirrelView extends TileView {
 		mStatusText = newView;
 	}
 
-    public void setText(String text) {
-        mStatusText.setText(text);
+    public void setText(String str) {
+        mStatusText.setText(str);
     }	
 	
-	public boolean checkTouched(double x, double y)
+	public boolean touch(double x, double y)
 	{
 		//if the point touched is within (2 * range), return true and create a new point
 		if ((Math.abs(x - currX) < (range * 2.0)) && (Math.abs(y - currY) < (range * 2.0)))
+		{
+			if (currType == BROWNSQ)
+			{
+				score += 10;
+				counter++;
+				setText("Score: " + score);
+			
+				if (counter > 5)
+				{
+					score += 10 * (counter - 5);
+					setText("Score: " + score + " - " + counter + "in a row!");
+				}
+			}
+			else if (currType == REDSQ)
+			{
+				score += 100;
+				counter++;
+				setText("Score: " + score);
+				
+				if (counter > 5)
+				{
+//					score += 10 * (counter - 5);
+					setText("Score: " + score + " - " + counter + "in a row!");
+				}
+			}
+			else if (currType == SKUNK)
+			{
+				score -= 100;
+				
+				if (score < 0)
+					score = 0;
+				counter = 0;
+				setText("Score: " + score + " - Oops!");
+			}
+			
+			updateNew();
 			return true;
+		}
+		else
+		{
+			setText("Score: " + score + " - Miss!");
+			counter = 0;
+			return false;
+		}
 		
-		return false;
 	}
 	
 	/**
@@ -236,6 +283,16 @@ public class SquirrelView extends TileView {
 	public int getType()
 	{
 		return currType;
+	}
+
+	public int getScore()
+	{
+		return score;
+	}
+
+	public int getCounter()
+	{
+		return counter;
 	}
 
 	public boolean getGameOver()
