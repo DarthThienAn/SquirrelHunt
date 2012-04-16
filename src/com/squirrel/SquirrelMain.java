@@ -22,6 +22,12 @@ public class SquirrelMain extends Activity implements OnGestureListener {
 	private boolean started = false;
 	private int score;
 	private int counter;
+	private int type;
+	
+	private static final int BROWNSQ = 1;
+	private static final int REDSQ = 2;
+	private static final int SKUNK = 3;
+	private static final int TREE = 4;
 	
 	private RefreshHandler mRefreshHandler = new RefreshHandler();
 	
@@ -73,29 +79,61 @@ public class SquirrelMain extends Activity implements OnGestureListener {
 //		}
 		if (mySquirrelView != null)
 		{
-			mySquirrelView.update();
-			mRefreshHandler.sleep(50);
-			
-	//		text.setText("" + e.getX() + " AND " + e.getY());
-			
-			if (mySquirrelView.checkTouched(e.getX(), e.getY()))
-			{
-				score += 10;
-				counter++;
-				text.setText("Score: " + score);
-				
-				if (counter > 5)
-				{
-					score += 10 * (counter - 5);
-					text.setText("Score: " + score + " - " + counter + "in a row!");
-				}
-				
-				mySquirrelView.updateNew();
-			}
+			if (mySquirrelView.getGameOver())
+				text.setText("Game Over! Score: " + score);
 			else
-			{
-				text.setText("Score: " + score + " - Miss!");
-				counter = 0;
+			{				
+				mySquirrelView.update();
+				mRefreshHandler.sleep(50);
+	
+		//		text.setText("" + e.getX() + " AND " + e.getY());
+				
+				if (mySquirrelView.checkTouched(e.getX(), e.getY()))
+				{
+					type = mySquirrelView.getType();
+					
+					if (type == BROWNSQ)
+					{
+						score += 10;
+						counter++;
+						text.setText("Score: " + score);
+					
+						if (counter > 5)
+						{
+							score += 10 * (counter - 5);
+							text.setText("Score: " + score + " - " + counter + "in a row!");
+						}
+					}
+					else if (type == REDSQ)
+					{
+						score += 100;
+						counter++;
+						text.setText("Score: " + score);
+						
+						if (counter > 5)
+						{
+//							score += 10 * (counter - 5);
+							text.setText("Score: " + score + " - " + counter + "in a row!");
+						}
+					}
+					else if (type == SKUNK)
+					{
+						score -= 100;
+						
+						if (score < 0)
+							score = 0;
+						counter = 0;
+						text.setText("Score: " + score + " - Oops!");
+					}
+					
+					
+					mySquirrelView.updateNew();
+				}
+				else //if (type != SKUNK)
+				{
+					text.setText("Score: " + score + " - Miss!");
+					counter = 0;
+				}
 			}
 		}		
 //		if (!started)
@@ -127,6 +165,7 @@ public class SquirrelMain extends Activity implements OnGestureListener {
 		started = true;
 		
 		mySquirrelView.update();
+		mySquirrelView.setTextView(text);
 		text.setText("Score: " + score);
 	}
 	

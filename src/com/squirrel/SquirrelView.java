@@ -18,12 +18,17 @@ public class SquirrelView extends TileView {
 	/**
 	 * Labels for the drawables that will be loaded into the TileView class
 	 */
-	private static final int GREEN = 1;
-	private static final int WALL = 2;
+	private static final int BROWNSQ = 1;
+	private static final int REDSQ = 2;
+	private static final int SKUNK = 3;
+	private static final int TREE = 4;
+//	private static final int WALL = 2;
 
-	private static double  currX;
+	private static double currX;
 	private static double currY;
+	private static int currType = 0;
 	private static int range;
+	private static boolean gameover = false;
 	
 	/**
 	 * mStatusText: text shows to the user in some run states
@@ -87,9 +92,11 @@ public class SquirrelView extends TileView {
 
 		Resources r = this.getContext().getResources();
 
-		resetTiles(3);
-		loadTile(GREEN, r.getDrawable(R.drawable.greenunit));
-		loadTile(WALL, r.getDrawable(R.drawable.wall));
+		resetTiles(5);
+		loadTile(BROWNSQ, r.getDrawable(R.drawable.brown_squirrel_icon));
+		loadTile(REDSQ, r.getDrawable(R.drawable.red_squirrel_icon));
+		loadTile(SKUNK, r.getDrawable(R.drawable.skunk));
+		loadTile(TREE, r.getDrawable(R.drawable.tree_icon));
 		
 		updateWalls();
 		drawNew();
@@ -155,27 +162,46 @@ public class SquirrelView extends TileView {
 	 * location.
 	 */
 	public void update() {
-		long now = System.currentTimeMillis();
-
-		if (now - mLastMove > mDelay) {
+		if (!gameover)
+		{
+			long now = System.currentTimeMillis();
+	
+			if (now - mLastMove > mDelay) {
+				clearTiles();
+				updateWalls();
+				drawNew();
+				mLastMove = now;
+			}
+			
+			//end game
+			if (now > mFirst + mTotalTime)
+				gameover = true;
+			
+			mRedrawHandler.sleep(0);
+		}
+		else
+		{
 			clearTiles();
 			updateWalls();
-			drawNew();
-			mLastMove = now;
+			mStatusText.setText("Game Over!");
 		}
-		
-		//end game
-//		if (now > mFirst + mTotalTime)
-//			System.exit(0);
-		
-		mRedrawHandler.sleep(0);
+
 	}
 
 	public void updateNew() {
-		clearTiles();
-		updateWalls();
-		drawNew();
-		mLastMove = System.currentTimeMillis();
+		if (!gameover)
+		{
+			clearTiles();
+			updateWalls();
+			drawNew();
+			mLastMove = System.currentTimeMillis();
+		}
+		else
+		{
+			clearTiles();
+			updateWalls();
+			mStatusText.setText("Game Over!");
+		}
 	}
 	
 	/**
@@ -183,12 +209,12 @@ public class SquirrelView extends TileView {
 	 */
 	private void updateWalls() {
 		for (int x = 0; x < xTileNum; x++) {
-			setTile(WALL, x, 0);
-			setTile(WALL, x, yTileNum - 1);
+			setTile(TREE, x, 0);
+			setTile(TREE, x, yTileNum - 1);
 		}
 		for (int y = 1; y < xTileNum - 1; y++) {
-			setTile(WALL, 0, y);
-			setTile(WALL, yTileNum - 1, y);
+			setTile(TREE, 0, y);
+			setTile(TREE, yTileNum - 1, y);
 		}
 	}
 
@@ -196,6 +222,18 @@ public class SquirrelView extends TileView {
 	 * Create and draw the next block.
 	 */
 	public void drawNew() {
+		int type = 0;
+		
+		double rand = Math.random();
+		
+		if (rand < 0.25)
+			type = SKUNK;
+		else if (rand < 0.5)
+			type = REDSQ;
+		else //if (Math.random() < 0.75)
+			type = BROWNSQ;
+
+		currType = type;
 		
 		Random randomGen = new Random();
 		
@@ -218,6 +256,16 @@ public class SquirrelView extends TileView {
 				
 		Log.d("xyRandom", xRandom + " " + yRandom);
 		
-		setTile(GREEN, xRandom, yRandom);
+		setTile(type, xRandom, yRandom);
+	}
+	
+	public int getType()
+	{
+		return currType;
+	}
+
+	public boolean getGameOver()
+	{
+		return gameover;
 	}
 }
